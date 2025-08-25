@@ -4,274 +4,297 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>日本史フラッシュカード</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-preserve-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+    </style>
 </head>
 <body>
     <div id="root"></div>
     <script type="text/babel">
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, RotateCcw, Shuffle, CheckCircle, XCircle } from 'lucide-react';
+        const { useState, useEffect } = React;
 
-const HistoryFlashcards = () => {
-  const [cards] = useState([
-    { id: 1, front: "1192年", back: "鎌倉幕府成立\n源頼朝が征夷大将軍となる", category: "鎌倉時代" },
-    { id: 2, front: "1333年", back: "鎌倉幕府滅亡\n新田義貞が鎌倉を攻略", category: "鎌倉時代" },
-    { id: 3, front: "1467年", back: "応仁の乱\n細川氏と山名氏の対立から始まる", category: "室町時代" },
-    { id: 4, front: "1573年", back: "室町幕府滅亡\n足利義昭が京都から追放される", category: "室町時代" },
-    { id: 5, front: "1600年", back: "関ヶ原の戦い\n徳川家康が石田三成を破る", category: "安土桃山時代" },
-    { id: 6, front: "1603年", back: "江戸幕府成立\n徳川家康が征夷大将軍となる", category: "江戸時代" },
-    { id: 7, front: "1853年", back: "ペリー来航\n黒船4隻で浦賀に来港", category: "江戸時代" },
-    { id: 8, front: "1867年", back: "大政奉還\n徳川慶喜が政権を朝廷に返上", category: "江戸時代" },
-    { id: 9, front: "1868年", back: "明治維新\n戊辰戦争が始まる", category: "明治時代" },
-    { id: 10, front: "1889年", back: "大日本帝国憲法発布\n伊藤博文らが起草", category: "明治時代" },
-    { id: 11, front: "聖徳太子", back: "十七条憲法を制定（604年）\n遣隋使を派遣", category: "飛鳥時代" },
-    { id: 12, front: "藤原道長", back: "藤原氏の全盛期を築く\n「この世をば我が世とぞ思ふ」", category: "平安時代" },
-    { id: 13, front: "源義経", back: "平氏討伐で活躍\n一ノ谷・屋島・壇ノ浦で勝利", category: "鎌倉時代" },
-    { id: 14, front: "織田信長", back: "楽市楽座を推進\n本能寺の変で死去（1582年）", category: "安土桃山時代" },
-    { id: 15, front: "豊臣秀吉", back: "太閤検地を実施\n朝鮮出兵を行う", category: "安土桃山時代" }
-  ]);
+        // アイコンコンポーネントの定義
+        const ChevronLeft = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+        );
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [shuffledCards, setShuffledCards] = useState(cards);
-  const [studiedCards, setStudiedCards] = useState([]);
-  const [correctCount, setCorrectCount] = useState(0);
-  const [incorrectCount, setIncorrectCount] = useState(0);
+        const ChevronRight = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+        );
 
-  const currentCard = shuffledCards[currentIndex];
+        const RotateCcw = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M1 4v6h6" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg>
+        );
 
-  const shuffleCards = () => {
-    const shuffled = [...cards].sort(() => Math.random() - 0.5);
-    setShuffledCards(shuffled);
-    setCurrentIndex(0);
-    setIsFlipped(false);
-    resetProgress();
-  };
+        const Shuffle = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 3h5m0 0v5m0-5l-6 6" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 14l-6 6m0 0H10m5 0v-5" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 18H3m0 0v-5m0 5l6-6" />
+            </svg>
+        );
 
-  const resetProgress = () => {
-    setStudiedCards([]);
-    setCorrectCount(0);
-    setIncorrectCount(0);
-  };
+        const CheckCircle = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
 
-  const flipCard = () => {
-    setIsFlipped(!isFlipped);
-  };
+        const XCircle = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
 
-  const nextCard = () => {
-    if (currentIndex < shuffledCards.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-      setIsFlipped(false);
-    }
-  };
+        const HistoryFlashcards = () => {
+            const [cards] = useState([
+                { id: 1, front: "1192年", back: "鎌倉幕府成立\n源頼朝が征夷大将軍となる", category: "鎌倉時代" },
+                { id: 2, front: "1333年", back: "鎌倉幕府滅亡\n新田義貞が鎌倉を攻略", category: "鎌倉時代" },
+                { id: 3, front: "1467年", back: "応仁の乱\n細川氏と山名氏の対立から始まる", category: "室町時代" },
+                { id: 4, front: "1573年", back: "室町幕府滅亡\n足利義昭が京都から追放される", category: "室町時代" },
+                { id: 5, front: "1600年", back: "関ヶ原の戦い\n徳川家康が石田三成を破る", category: "安土桃山時代" },
+                { id: 6, front: "1603年", back: "江戸幕府成立\n徳川家康が征夷大将軍となる", category: "江戸時代" },
+                { id: 7, front: "1853年", back: "ペリー来航\n黒船4隻で浦賀に来港", category: "江戸時代" },
+                { id: 8, front: "1867年", back: "大政奉還\n徳川慶喜が政権を朝廷に返上", category: "江戸時代" },
+                { id: 9, front: "1868年", back: "明治維新\n戊辰戦争が始まる", category: "明治時代" },
+                { id: 10, front: "1889年", back: "大日本帝国憲法発布\n伊藤博文らが起草", category: "明治時代" },
+                { id: 11, front: "聖徳太子", back: "十七条憲法を制定（604年）\n遣隋使を派遣", category: "飛鳥時代" },
+                { id: 12, front: "藤原道長", back: "藤原氏の全盛期を築く\n「この世をば我が世とぞ思ふ」", category: "平安時代" },
+                { id: 13, front: "源義経", back: "平氏討伐で活躍\n一ノ谷・屋島・壇ノ浦で勝利", category: "鎌倉時代" },
+                { id: 14, front: "織田信長", back: "楽市楽座を推進\n本能寺の変で死去（1582年）", category: "安土桃山時代" },
+                { id: 15, front: "豊臣秀吉", back: "太閤検地を実施\n朝鮮出兵を行う", category: "安土桃山時代" }
+            ]);
 
-  const prevCard = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-      setIsFlipped(false);
-    }
-  };
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [isFlipped, setIsFlipped] = useState(false);
+            const [shuffledCards, setShuffledCards] = useState(cards);
+            const [studiedCards, setStudiedCards] = useState([]);
+            const [correctCount, setCorrectCount] = useState(0);
+            const [incorrectCount, setIncorrectCount] = useState(0);
 
-  const markAnswer = (isCorrect) => {
-    const cardId = currentCard.id;
-    if (!studiedCards.includes(cardId)) {
-      setStudiedCards([...studiedCards, cardId]);
-      if (isCorrect) {
-        setCorrectCount(correctCount + 1);
-      } else {
-        setIncorrectCount(incorrectCount + 1);
-      }
-    }
-    nextCard();
-  };
+            const currentCard = shuffledCards[currentIndex];
 
-  const getCategoryColor = (category) => {
-    const colors = {
-      '飛鳥時代': 'bg-purple-100 text-purple-800',
-      '平安時代': 'bg-pink-100 text-pink-800',
-      '鎌倉時代': 'bg-blue-100 text-blue-800',
-      '室町時代': 'bg-green-100 text-green-800',
-      '安土桃山時代': 'bg-orange-100 text-orange-800',
-      '江戸時代': 'bg-indigo-100 text-indigo-800',
-      '明治時代': 'bg-red-100 text-red-800'
-    };
-    return colors[category] || 'bg-gray-100 text-gray-800';
-  };
+            const shuffleCards = () => {
+                const shuffled = [...cards].sort(() => Math.random() - 0.5);
+                setShuffledCards(shuffled);
+                setCurrentIndex(0);
+                setIsFlipped(false);
+                resetProgress();
+            };
 
-  return (
-    <div className="max-w-2xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-      <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">日本史フラッシュカード</h1>
-        <p className="text-gray-600">重要な年号と歴史的事件を覚えよう</p>
-      </div>
+            const resetProgress = () => {
+                setStudiedCards([]);
+                setCorrectCount(0);
+                setIncorrectCount(0);
+            };
 
-      {/* 進捗表示 */}
-      <div className="bg-white rounded-lg p-4 mb-6 shadow-md">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-gray-600">
-            カード {currentIndex + 1} / {shuffledCards.length}
-          </span>
-          <div className="flex gap-4">
-            <div className="flex items-center gap-1">
-              <CheckCircle className="w-4 h-4 text-green-500" />
-              <span className="text-sm text-green-600">{correctCount}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <XCircle className="w-4 h-4 text-red-500" />
-              <span className="text-sm text-red-600">{incorrectCount}</span>
-            </div>
-          </div>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${((currentIndex + 1) / shuffledCards.length) * 100}%` }}
-          ></div>
-        </div>
-      </div>
+            const flipCard = () => {
+                setIsFlipped(!isFlipped);
+            };
 
-      {/* フラッシュカード */}
-      <div className="relative mb-6">
-        <div className="perspective-1000">
-          <div 
-            className={`relative w-full h-80 transition-transform duration-500 transform-style-preserve-3d ${
-              isFlipped ? 'rotate-y-180' : ''
-            }`}
-          >
-            {/* 表面 */}
-            <div className="absolute inset-0 w-full h-full backface-hidden">
-              <div className="bg-white rounded-xl shadow-lg p-8 h-full flex flex-col justify-center items-center border-2 border-blue-200">
-                <div className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mb-4 ${getCategoryColor(currentCard.category)}`}>
-                  {currentCard.category}
-                </div>
-                <div className="text-2xl font-bold text-gray-800 text-center">
-                  {currentCard.front}
-                </div>
-                <p className="text-gray-500 mt-4 text-center">クリックして答えを確認</p>
-              </div>
-            </div>
+            const nextCard = () => {
+                if (currentIndex < shuffledCards.length - 1) {
+                    setCurrentIndex(currentIndex + 1);
+                    setIsFlipped(false);
+                }
+            };
 
-            {/* 裏面 */}
-            <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180">
-              <div className="bg-green-50 rounded-xl shadow-lg p-8 h-full flex flex-col justify-center items-center border-2 border-green-200">
-                <div className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mb-4 ${getCategoryColor(currentCard.category)}`}>
-                  {currentCard.category}
-                </div>
-                <div className="text-lg text-gray-800 text-center whitespace-pre-line leading-relaxed">
-                  {currentCard.back}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+            const prevCard = () => {
+                if (currentIndex > 0) {
+                    setCurrentIndex(currentIndex - 1);
+                    setIsFlipped(false);
+                }
+            };
 
-        {/* カードをクリックして裏返し */}
-        <div 
-          className="absolute inset-0 cursor-pointer"
-          onClick={flipCard}
-        ></div>
-      </div>
+            const markAnswer = (isCorrect) => {
+                const cardId = currentCard.id;
+                if (!studiedCards.includes(cardId)) {
+                    setStudiedCards([...studiedCards, cardId]);
+                    if (isCorrect) {
+                        setCorrectCount(correctCount + 1);
+                    } else {
+                        setIncorrectCount(incorrectCount + 1);
+                    }
+                }
+                nextCard();
+            };
 
-      {/* 正解・不正解ボタン（裏面表示時のみ） */}
-      {isFlipped && (
-        <div className="flex justify-center gap-4 mb-6">
-          <button
-            onClick={() => markAnswer(false)}
-            className="flex items-center gap-2 px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-semibold"
-          >
-            <XCircle className="w-5 h-5" />
-            不正解
-          </button>
-          <button
-            onClick={() => markAnswer(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-semibold"
-          >
-            <CheckCircle className="w-5 h-5" />
-            正解
-          </button>
-        </div>
-      )}
+            const getCategoryColor = (category) => {
+                const colors = {
+                    '飛鳥時代': 'bg-purple-100 text-purple-800',
+                    '平安時代': 'bg-pink-100 text-pink-800',
+                    '鎌倉時代': 'bg-blue-100 text-blue-800',
+                    '室町時代': 'bg-green-100 text-green-800',
+                    '安土桃山時代': 'bg-orange-100 text-orange-800',
+                    '江戸時代': 'bg-indigo-100 text-indigo-800',
+                    '明治時代': 'bg-red-100 text-red-800'
+                };
+                return colors[category] || 'bg-gray-100 text-gray-800';
+            };
 
-      {/* ナビゲーションコントロール */}
-      <div className="flex justify-between items-center bg-white rounded-lg p-4 shadow-md">
-        <button
-          onClick={prevCard}
-          disabled={currentIndex === 0}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold ${
-            currentIndex === 0
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-blue-500 text-white hover:bg-blue-600'
-          } transition-colors`}
-        >
-          <ChevronLeft className="w-4 h-4" />
-          前へ
-        </button>
+            return React.createElement('div', {
+                className: 'max-w-2xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen'
+            }, [
+                React.createElement('div', { className: 'text-center mb-6', key: 'header' }, [
+                    React.createElement('h1', { className: 'text-3xl font-bold text-gray-800 mb-2', key: 'title' }, '日本史フラッシュカード'),
+                    React.createElement('p', { className: 'text-gray-600', key: 'subtitle' }, '重要な年号と歴史的事件を覚えよう')
+                ]),
 
-        <div className="flex gap-2">
-          <button
-            onClick={shuffleCards}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors font-semibold"
-          >
-            <Shuffle className="w-4 h-4" />
-            シャッフル
-          </button>
-          <button
-            onClick={resetProgress}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-semibold"
-          >
-            <RotateCcw className="w-4 h-4" />
-            リセット
-          </button>
-        </div>
+                React.createElement('div', { className: 'bg-white rounded-lg p-4 mb-6 shadow-md', key: 'progress' }, [
+                    React.createElement('div', { className: 'flex justify-between items-center mb-2', key: 'progress-info' }, [
+                        React.createElement('span', { className: 'text-sm text-gray-600', key: 'card-count' }, 
+                            `カード ${currentIndex + 1} / ${shuffledCards.length}`),
+                        React.createElement('div', { className: 'flex gap-4', key: 'scores' }, [
+                            React.createElement('div', { className: 'flex items-center gap-1', key: 'correct' }, [
+                                React.createElement(CheckCircle, { key: 'correct-icon' }),
+                                React.createElement('span', { className: 'text-sm text-green-600', key: 'correct-count' }, correctCount)
+                            ]),
+                            React.createElement('div', { className: 'flex items-center gap-1', key: 'incorrect' }, [
+                                React.createElement(XCircle, { key: 'incorrect-icon' }),
+                                React.createElement('span', { className: 'text-sm text-red-600', key: 'incorrect-count' }, incorrectCount)
+                            ])
+                        ])
+                    ]),
+                    React.createElement('div', { className: 'w-full bg-gray-200 rounded-full h-2', key: 'progress-bar-bg' },
+                        React.createElement('div', { 
+                            className: 'bg-blue-500 h-2 rounded-full transition-all duration-300',
+                            style: { width: `${((currentIndex + 1) / shuffledCards.length) * 100}%` },
+                            key: 'progress-bar'
+                        })
+                    )
+                ]),
 
-        <button
-          onClick={nextCard}
-          disabled={currentIndex === shuffledCards.length - 1}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold ${
-            currentIndex === shuffledCards.length - 1
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-blue-500 text-white hover:bg-blue-600'
-          } transition-colors`}
-        >
-          次へ
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
+                React.createElement('div', { className: 'relative mb-6', key: 'card-container' }, [
+                    React.createElement('div', { className: 'perspective-1000', key: 'perspective' },
+                        React.createElement('div', { 
+                            className: `relative w-full h-80 transition-transform duration-500 transform-style-preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`,
+                            key: 'card-flip'
+                        }, [
+                            React.createElement('div', { className: 'absolute inset-0 w-full h-full backface-hidden', key: 'card-front' },
+                                React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-8 h-full flex flex-col justify-center items-center border-2 border-blue-200', key: 'front-content' }, [
+                                    React.createElement('div', { 
+                                        className: `inline-block px-3 py-1 rounded-full text-xs font-semibold mb-4 ${getCategoryColor(currentCard.category)}`,
+                                        key: 'front-category'
+                                    }, currentCard.category),
+                                    React.createElement('div', { className: 'text-2xl font-bold text-gray-800 text-center', key: 'front-text' }, currentCard.front),
+                                    React.createElement('p', { className: 'text-gray-500 mt-4 text-center', key: 'front-instruction' }, 'クリックして答えを確認')
+                                ])
+                            ),
+                            React.createElement('div', { className: 'absolute inset-0 w-full h-full backface-hidden rotate-y-180', key: 'card-back' },
+                                React.createElement('div', { className: 'bg-green-50 rounded-xl shadow-lg p-8 h-full flex flex-col justify-center items-center border-2 border-green-200', key: 'back-content' }, [
+                                    React.createElement('div', { 
+                                        className: `inline-block px-3 py-1 rounded-full text-xs font-semibold mb-4 ${getCategoryColor(currentCard.category)}`,
+                                        key: 'back-category'
+                                    }, currentCard.category),
+                                    React.createElement('div', { 
+                                        className: 'text-lg text-gray-800 text-center leading-relaxed',
+                                        key: 'back-text',
+                                        style: { whiteSpace: 'pre-line' }
+                                    }, currentCard.back)
+                                ])
+                            )
+                        ])
+                    ),
+                    React.createElement('div', { 
+                        className: 'absolute inset-0 cursor-pointer',
+                        onClick: flipCard,
+                        key: 'click-overlay'
+                    })
+                ]),
 
-      {/* 完了メッセージ */}
-      {studiedCards.length === shuffledCards.length && (
-        <div className="mt-6 bg-green-100 border border-green-300 rounded-lg p-4 text-center">
-          <h3 className="text-lg font-bold text-green-800 mb-2">学習完了！</h3>
-          <p className="text-green-700">
-            正解: {correctCount}問 / 不正解: {incorrectCount}問
-          </p>
-          <p className="text-green-600 text-sm mt-1">
-            正答率: {Math.round((correctCount / (correctCount + incorrectCount)) * 100)}%
-          </p>
-        </div>
-      )}
+                isFlipped && React.createElement('div', { className: 'flex justify-center gap-4 mb-6', key: 'answer-buttons' }, [
+                    React.createElement('button', {
+                        onClick: () => markAnswer(false),
+                        className: 'flex items-center gap-2 px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-semibold',
+                        key: 'incorrect-btn'
+                    }, [
+                        React.createElement(XCircle, { key: 'incorrect-btn-icon' }),
+                        '不正解'
+                    ]),
+                    React.createElement('button', {
+                        onClick: () => markAnswer(true),
+                        className: 'flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-semibold',
+                        key: 'correct-btn'
+                    }, [
+                        React.createElement(CheckCircle, { key: 'correct-btn-icon' }),
+                        '正解'
+                    ])
+                ]),
 
-      <style jsx>{`
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        .transform-style-preserve-3d {
-          transform-style: preserve-3d;
-        }
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-      `}</style>
-    </div>
-  );
-};
+                React.createElement('div', { className: 'flex justify-between items-center bg-white rounded-lg p-4 shadow-md', key: 'controls' }, [
+                    React.createElement('button', {
+                        onClick: prevCard,
+                        disabled: currentIndex === 0,
+                        className: `flex items-center gap-2 px-4 py-2 rounded-lg font-semibold ${currentIndex === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'} transition-colors`,
+                        key: 'prev-btn'
+                    }, [
+                        React.createElement(ChevronLeft, { key: 'prev-icon' }),
+                        '前へ'
+                    ]),
 
+                    React.createElement('div', { className: 'flex gap-2', key: 'middle-buttons' }, [
+                        React.createElement('button', {
+                            onClick: shuffleCards,
+                            className: 'flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors font-semibold',
+                            key: 'shuffle-btn'
+                        }, [
+                            React.createElement(Shuffle, { key: 'shuffle-icon' }),
+                            'シャッフル'
+                        ]),
+                        React.createElement('button', {
+                            onClick: resetProgress,
+                            className: 'flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-semibold',
+                            key: 'reset-btn'
+                        }, [
+                            React.createElement(RotateCcw, { key: 'reset-icon' }),
+                            'リセット'
+                        ])
+                    ]),
+
+                    React.createElement('button', {
+                        onClick: nextCard,
+                        disabled: currentIndex === shuffledCards.length - 1,
+                        className: `flex items-center gap-2 px-4 py-2 rounded-lg font-semibold ${currentIndex === shuffledCards.length - 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'} transition-colors`,
+                        key: 'next-btn'
+                    }, [
+                        '次へ',
+                        React.createElement(ChevronRight, { key: 'next-icon' })
+                    ])
+                ]),
+
+                studiedCards.length === shuffledCards.length && React.createElement('div', { className: 'mt-6 bg-green-100 border border-green-300 rounded-lg p-4 text-center', key: 'completion' }, [
+                    React.createElement('h3', { className: 'text-lg font-bold text-green-800 mb-2', key: 'completion-title' }, '学習完了！'),
+                    React.createElement('p', { className: 'text-green-700', key: 'completion-score' }, `正解: ${correctCount}問 / 不正解: ${incorrectCount}問`),
+                    React.createElement('p', { className: 'text-green-600 text-sm mt-1', key: 'completion-rate' }, 
+                        `正答率: ${Math.round((correctCount / (correctCount + incorrectCount)) * 100)}%`)
+                ])
+            ]);
+        };
+
+        ReactDOM.render(React.createElement(HistoryFlashcards), document.getElementById('root'));
     </script>
 </body>
 </html>
